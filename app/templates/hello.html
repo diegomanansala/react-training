@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Flask React</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Flask React Now!</h1>
+        <br>
+        <div id="content" class="row">
+        </div>  
+
+    </div>
+    <!-- scripts -->
+    <script src="{{ url_for('static', filename='bower_components/react/react.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/react/JSXTransformer.js') }}"></script>
+    <script type="text/jsx">
+        
+        var items = [
+            {
+                name: "Volvo",
+                price: 1.00
+            },
+            {
+                name: "Toyota",
+                price: 2.50
+            },
+            {
+                name: "Chevrolet",
+                price: 3.75
+            },
+            {
+                name: "Honda",
+                price: 4.00
+            },
+            {
+                name: "Ford",
+                price: 5.14
+            },
+        ];
+        
+        var ItemMixin = {
+            propTypes: {
+                name: React.PropTypes.string,
+                price: React.PropTypes.number,
+                qty: React.PropTypes.number,
+                totalPrice: React.PropTypes.number,
+            },
+        };
+
+        var GroceryItem = React.createClass({
+            mixins: [ItemMixin],
+            render: function(){
+                return (
+                    <tr>
+                        <td>{this.props.item.name}</td>
+                        <td>{this.props.item.price.toFixed(2)}</td>
+                        <td><input type="number" min={0} id={"qty_"+this.props.index}/></td>
+                        <td><button id={this.props.index} className="btn btn-default" onClick={this.props.onClick}>Add to Cart</button></td>
+                    </tr>)
+            }
+        });
+        
+        var CartItem = React.createClass({
+            mixins: [ItemMixin],
+            render: function(){
+                return (
+                    <tr>
+                        <td>{this.props.item.name}</td>
+                        <td>{this.props.item.price.toFixed(2)}</td>
+                        <td>{this.props.item.qty}</td>
+                        <td>{this.props.item.totalPrice.toFixed(2)}</td>
+                    </tr>)
+            }
+        });
+        
+        var Grocery = React.createClass({
+            getInitialState: function(){
+                return {
+                    groceryItems: new Array(),
+                    cartItems: new Array(),
+                    totalPrice: 0,
+                };
+            },
+            componentDidMount:function(){
+                if(this.props.items.length>0){
+                    this.setState({groceryItems: this.props.items})
+                }
+            },
+            addToCart: function(e) {
+                var id = e.target.id;
+                var qty_input = document.getElementById("qty_"+id);
+
+                if(qty_input.value > 0) {
+                    
+                    var tempArr = this.state.cartItems;
+                    var newQty = 0;
+                    
+                    if (tempArr[id]) {
+                        newQty = parseInt(qty_input.value) + parseInt(tempArr[id].qty);
+                    } else {
+                        newQty = parseInt(qty_input.value);
+                    }
+                    tempArr[id] = {
+                        name: this.state.groceryItems[id].name,
+                        price: this.state.groceryItems[id].price,
+                        qty: newQty,
+                        totalPrice: this.state.groceryItems[id].price * newQty
+                    }
+                    qty_input.value = "";
+                    
+                    this.setState({ cartItems: tempArr, totalPrice: this.getTotalPrice(tempArr)});
+                }
+            },
+            getTotalPrice: function(cartItems) {
+                console.log(cartItems)
+                var newTotalPrice = 0.00
+                
+                if(cartItems.length > 0) {
+                    var tempArr = cartItems;
+                    tempArr.forEach(function(e) {
+                        newTotalPrice += e.totalPrice
+                    });
+                }
+                
+                return parseFloat(newTotalPrice)
+            },
+            checkoutItems: function() {
+                var purchaseText = "Purchased a total of Php "+this.state.totalPrice.toFixed(2);
+                React.findDOMNode(this.refs.purchaseText).innerHTML = purchaseText;
+                this.setState({ cartItems: new Array(), totalPrice: 0 });
+                
+            },
+            render: function(){
+                var that = this;
+                var totalPriceStyle = {
+                    textAlign:"right"
+                };
+                return(
+                    <div>
+                        <div className="col-md-6">
+                            <table className="table">
+                                <thead>
+                                    <th>Item</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>&nbsp;</th>
+                                </thead>
+                                <tbody>
+                                {
+                                    this.state.groceryItems.map(function(element,i){
+                                        return (<GroceryItem item={element} index={i} key={i} onClick={that.addToCart}/>);
+                                    })
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="col-md-6">
+                            <table className="table">
+                                <thead>
+                                    <th>Item</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total Price</th>
+                                </thead>
+                                <tbody>
+                                {
+                                    this.state.cartItems.map(function(element,i){
+                                        return (<CartItem item={element} key={i}/>);
+                                    })
+                                }
+                                <tr>
+                                    <td style={totalPriceStyle} colSpan="3">Total Price</td>
+                                    <td>{this.state.totalPrice.toFixed(2)}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div className="col-md-1 col-md-offset-9">
+                                <button className="btn btn-default" onClick={this.checkoutItems}>Checkout Items</button>
+                            </div>
+                            <div className="col-md-12" ref="purchaseText">
+                                
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        });
+
+        React.render(
+            <Grocery items={items}/>,
+            document.getElementById('content')
+        );
+    </script>
+</body>
+</html>

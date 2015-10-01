@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>Flask React</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- styles -->
+  </head>
+  <body>
+    <div class="container">
+      <h1>Flask React Now!</h1>
+      <br>
+      <div id="content"></div>
+    </div>
+    <!-- scripts -->
+    <script src="{{ url_for('static', filename='bower_components/react/react.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/react/JSXTransformer.js') }}"></script>
+    <script type="text/jsx">
+        var humanArr = [{"name":"Diego","bday":1990},{"name":"Ali","bday":1992}]
+        // var Human = React.createClass({
+        //     getInitialState: function() {
+        //         return {
+        //             age: 0,
+        //             name: "Someone",
+        //         }
+        //     },
+        //     componentDidMount: function() {
+        //         this.setState({
+        //             age: this.props.currYear - this.props.bday,
+        //             name: this.props.name
+        //         })
+        //     },
+        //     render: function() {
+        //         return (<div key={this.props.key}>Hello {this.state.name}, aged {this.state.age}</div>)
+        //     }
+        // })
+        // var HelloComponent = React.createClass({
+        //     render: function(){
+        //         return (
+        //         <div>
+        //         {
+        //             this.props.names.map(function(elem,i) {
+        //                 return <Human name={elem["name"]} bday={elem["bday"]} currYear={2015} key={i}/>
+        //             })
+        //         }
+        //         </div>)
+        //     }
+        // })
+        
+        var girls = ["Angel Locsin","Sam Pinto","Diane Kreuger","Sofia Vergara"]
+        
+        var Girl = React.createClass({
+            getInitialState: function() {
+                return {
+                    name: "",
+                }
+            },
+            componentDidMount: function() {
+                this.setState({
+                    name:this.props.name
+                })
+            },
+            render: function() {
+                return (<li key={this.props.key}>{this.state.name}</li>)
+            }
+        });
+        
+        var GirlsSearch = React.createClass({
+            getInitialState: function() {
+                return {
+                    searchString: '',
+                    girls: new Array(),
+                }
+            },
+            componentDidMount: function() {
+                this.setState({
+                    girls: this.props.girls
+                })
+            },
+            addNewGirl: function(e) {
+                var newGirl = document.getElementById('add_girl').value;
+                
+                if (newGirl != "") {
+                    this.setState(function(prev,currProps) {
+                        console.log(currProps)
+                        var temparr = prev.girls;
+                        temparr.push(newGirl)
+                        return {
+                            girls: temparr
+                        }
+                    })
+                }
+                document.getElementById('add_girl').value = ""
+            },
+            handleInput: function(e) {                
+                this.setState({
+                    searchString: e.target.value
+                })
+            },
+            render: function() {
+                var filtered = this.props.girls;
+                var targetString = this.state.searchString
+
+                if(targetString.length > 0)
+                    filtered = this.state.girls.filter(function(girl) {
+                        return girl.toLowerCase().match(targetString.toLowerCase())
+                    }) 
+                
+                return (
+                    <div>
+                    <input type="text" placeholder="Search Girls" onChange={this.handleInput}/>
+                    <br />
+                    <input id="add_girl" type="text" placeholder="New Girl" /><input type="submit" value="Add Girl" onClick={this.addNewGirl}/>
+                    <ul>
+                        {
+                            filtered.map(function(girl,i) {
+                                return (<Girl name={girl} key={i} />)
+                            })
+                        }
+                    </ul>
+                    </div>
+                );
+            }
+        });
+        
+        React.render(
+            //React.createElement(HelloComponent, null),
+            // <HelloComponent names={humanArr}/>,
+            <GirlsSearch girls={girls}/>,
+            document.getElementById('content')
+        );
+    </script>
+  </body>
+</html>

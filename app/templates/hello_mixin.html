@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>Flask React</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- styles -->
+  </head>
+  <body>
+    <div class="container">
+      <h1>Flask React Now!</h1>
+      <br>
+      <div id="content_one"></div>
+      <div id="content_two"></div>
+    </div>
+    <!-- scripts -->
+    <script src="{{ url_for('static', filename='bower_components/react/react.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/react/JSXTransformer.js') }}"></script>
+    <script type="text/jsx">
+        var ListMixin = {
+            handleInput: function() {
+                alert('Hello ' + this.props.name + ' aged ' + this.props.age + '!');
+            },
+            getDefaultProps: function() {
+                return {
+                    name: 'World',
+                    age: 2015
+                }
+            },
+            propTypes: {
+                name: React.PropTypes.string,
+                age: React.PropTypes.number,
+                father: React.PropTypes.shape({
+                    name: React.PropTypes.string,
+                    house: React.PropTypes.string
+                }),
+                computeChemicals: React.PropTypes.func.isRequired
+            },
+        };
+    
+        var NumberListOne = React.createClass({
+            mixins: [ListMixin],
+            render: function() {
+                return (<div><button onClick={this.handleInput}>Press Button One</button></div>);
+            }
+        });
+        
+        var NumberListTwo = React.createClass({
+            mixins: [ListMixin],
+            computeChemicals: function() {
+                return 1
+            },
+            render: function() {
+                return (<div><button onClick={this.handleInput}>Press Button Two</button></div>);
+            }
+        });
+        
+        React.render(
+            <NumberListOne />,
+            document.getElementById('content_one'));
+        React.render(
+            <NumberListTwo name={'Lambert'} age={25} father={({name:"Test",house:"Baratheon"})}/>,
+            document.getElementById('content_two'));
+    </script>
+  </body>
+</html>

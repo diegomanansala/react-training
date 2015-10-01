@@ -1,0 +1,24 @@
+{
+  "name": "react-training",
+  "version": "0.0.1",
+  "authors": [
+    "Diego Manansala <diego.manansala@gmail.com>"
+  ],
+  "description": "Sample project",
+  "main": "app/app.py",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "localhost:5000/",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/static/bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "react": "~0.13.3"
+  }
+}

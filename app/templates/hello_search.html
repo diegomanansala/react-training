@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>Flask React</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- styles -->
+  </head>
+  <body>
+    <div class="container">
+      <h1>Flask React Now!</h1>
+      <br>
+      <div id="content"></div>
+    </div>
+    <!-- scripts -->
+    <script src="{{ url_for('static', filename='bower_components/react/react.js') }}"></script>
+    <script src="{{ url_for('static', filename='bower_components/react/JSXTransformer.js') }}"></script>
+    <script type="text/jsx">
+        
+        var girls = ["Angel Locsin", "Sam Pinto", "Diane Kreuger", "Sofia Vergara"];
+
+        var ResultItem = React.createClass({
+            render: function(){
+                return (<li>{this.props.girlname}&nbsp;<button id={this.props.index} type="button" onClick={this.props.removeGirl}>Delete Lover</button></li>)
+            }
+        })
+
+        var Lambert = React.createClass({
+            getInitialState: function(){
+                return {
+                    searchString: '',
+                    girls: new Array()
+                };
+            },
+            handleInput: function(event){
+                this.setState( {searchString: event.target.value} );
+            },
+            addGirl: function(event){
+                var lover = React.findDOMNode(this.refs.lover).value;
+                if(lover.length>0){
+                    var tempArr = this.state.girls;
+                    tempArr.push(lover);
+                    this.setState({girls: tempArr});
+                    document.getElementById("lover").value = '';
+                }
+            },
+            componentDidMount:function(){
+                if(this.props.girls.length>0){
+                    this.setState({girls: this.props.girls})
+                }
+            },
+            doRemoveGirl: function(e) {
+
+                index = e.target.id;
+                if(this.state.girls.length > 0 && index > -1 && index < this.state.girls.length) {
+                    var tempArr = this.state.girls;
+                    tempArr.splice(index, 1);
+                    this.setState({girls: tempArr});
+                }
+            },
+            render: function(){
+            
+                var filtered = this.state.girls;                
+                var targetString = this.state.searchString;
+                var that = this;
+                if(targetString.length>0){
+                    filtered =  this.props.girls.filter(function(element){
+                                    return element.contains(targetString)
+                                });
+                }
+
+                return(
+                    <div>
+                        <input id="lover" ref="lover" type="text" placeholder="Enter New Lover"/>
+                        <button ref="lambert" type="button" onClick={this.addGirl}>Add Lover!</button>
+                        <br /><br />
+                        <input type="text" text="Add Lover" placeholder="Search Girls" onChange={this.handleInput}/>
+                        <ul>
+                            {
+                                filtered.map(function(element,i){
+                                    return (<ResultItem ref={element} girlname={element} removeGirl={that.doRemoveGirl} index={i}/>);
+                                })
+                            }
+                        </ul>
+                    </div>
+                );
+            }
+        });
+
+        React.render(
+            <Lambert girls={girls}/>,
+            document.getElementById('content')
+        );
+    </script>
+  </body>
+</html>
